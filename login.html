@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login Form</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .login-container {
+            margin-top: 5%;
+        }
+
+        .categories-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container login-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Login
+                </div>
+                <div class="card-body">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="login()">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container categories-container">
+    <h2>Categories</h2>
+    <ul id="categoriesList"></ul>
+</div>
+
+<!-- Add Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function login() {
+        // Get user inputs
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+
+        // Encode data for URL parameters
+        // Parametrai siuncčiami backendui username ir password
+        var params = new URLSearchParams();
+        params.append('username', email);
+        params.append('password', password);
+
+        // Send a request to your backend for authentication using fetch
+        fetch('http://127.0.0.1:8000/api/v1/users/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params,
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response from your backend
+                if (data.access_token) {
+                    // Store the token in localStorage
+                    localStorage.setItem('jwtToken', data.access_token);
+                    alert('Login successful! JWT Token: ' + data.access_token);
+                    // Fetch and display categories
+                    //fetchCategories();
+                    window.location.href = "index.html";
+                } else {
+                    alert('Login failed. Please check your credentials.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+
+</script>
+
+</body>
+</html>
