@@ -22,7 +22,16 @@
 </head>
 <body>
 
+
 <div class="container categories-container">
+
+    <form id="create_new_category" method="post">
+        <input type="text" id="category_name" name="category_name" placeholder="Name">
+        <input type="text" id="description" name="description" placeholder="Description">
+        <button type="button" class="btn btn-primary" onclick="create_new_category()">Create New Category</button>
+    </form>
+
+
     <h2>Categories</h2>
     <ul id="categoriesList"></ul>
 </div>
@@ -34,7 +43,40 @@
 
 <script>
 
-    function fetchCategories() {
+    function create_new_category() {
+
+        let cat = document.getElementById('category_name').value;
+        let desc = document.getElementById('description').value;
+        const jwtToken = localStorage.getItem('jwtToken');
+
+        if(!jwtToken){
+            return;
+        }
+
+        // Make a request to fetch categories using the token
+        fetch('http://127.0.0.1:8000/api/v1/posts/category', {
+
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + jwtToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "name": cat,
+                "description": desc
+            }),
+
+        })
+            .then(response => {
+                response.json();
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error create category', error);
+            });
+    }
+
+     function fetchCategories() {
         // Get the token from localStorage
         var jwtToken = localStorage.getItem('jwtToken');
 
@@ -49,9 +91,36 @@
                 // Display categories in the UI
                 var categoriesList = document.getElementById('categoriesList');
                 categories.forEach(category => {
+
+                    const button = document.createElement('button');
+                    button.textContent = 'Delete';
+
+
                     var listItem = document.createElement('li');
                     listItem.textContent = category.name;
+                    listItem.appendChild(button);
                     categoriesList.appendChild(listItem);
+
+                    button.addEventListener('click', async function () {
+                        // Delete the list item element
+                        listItem.parentNode.removeChild(listItem);
+
+                        console.log(category.name);
+                        const response = await fetch(`/api/categories/${category.name}`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + jwtToken,
+                            },
+                            method: 'DELETE',
+                        });
+
+                        if(response.ok){
+                            alert('deleted');
+                        }
+
+
+                    });
+
+
                 });
             })
             .catch(error => {
