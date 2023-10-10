@@ -20,7 +20,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="is_authenticated()">
 
 
 <div class="container categories-container">
@@ -43,18 +43,19 @@
 
 <script>
 
+
     function create_new_category() {
 
         let cat = document.getElementById('category_name').value;
         let desc = document.getElementById('description').value;
         const jwtToken = localStorage.getItem('jwtToken');
 
-        if(!jwtToken){
+        if (!jwtToken) {
             return;
         }
 
         // Make a request to fetch categories using the token
-        fetch('http://127.0.0.1:8000/api/v1/posts/category', {
+        fetch('http://127.0.0.1:8000/api/v1/posts/categories', {
 
             method: 'POST',
             headers: {
@@ -62,8 +63,7 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "name": cat,
-                "description": desc
+                "name": cat
             }),
 
         })
@@ -76,7 +76,7 @@
             });
     }
 
-     function fetchCategories() {
+    function fetchCategories() {
         // Get the token from localStorage
         var jwtToken = localStorage.getItem('jwtToken');
 
@@ -106,14 +106,14 @@
                         listItem.parentNode.removeChild(listItem);
 
                         console.log(category.name);
-                        const response = await fetch(`/api/categories/${category.name}`, {
+                        const response = await fetch(`http://127.0.0.1:8000/api/v1/posts/categories/${category.name}`, {
                             headers: {
                                 'Authorization': 'Bearer ' + jwtToken,
                             },
                             method: 'DELETE',
                         });
 
-                        if(response.ok){
+                        if (response.ok) {
                             alert('deleted');
                         }
 
@@ -128,11 +128,30 @@
             });
     }
 
-    if (localStorage.getItem('jwtToken')) {
-        fetchCategories();
-    } else {
-        window.location.href = 'login.html';
+
+    async function is_authenticated() {
+        // Get the token from localStorage
+        var jwtToken = localStorage.getItem('jwtToken');
+
+        // Make a request to fetch categories using the token
+        const response = await fetch('http://127.0.0.1:8000/api/v1/users/me', {
+            headers: {
+                'Authorization': 'Bearer ' + jwtToken,
+            },
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    // Redirect the user to the login page
+                    window.location.href = '/login.html';
+                }else{
+                    fetchCategories();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching categories:', error);
+            });
     }
+
 
 </script>
 

@@ -83,7 +83,9 @@
                 if (data.access_token) {
                     // Store the token in localStorage
                     localStorage.setItem('jwtToken', data.access_token);
-                    alert('Login successful! JWT Token: ' + data.access_token);
+                    //alert('Login successful! JWT Token: ' + data.access_token);
+
+                    window.location.href ="/index.html";
                     // Fetch and display categories
                     //fetchCategories();
 
